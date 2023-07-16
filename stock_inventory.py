@@ -292,11 +292,11 @@ class DeleteProductResource(Resource):
 
 api.add_resource(DeleteProductResource, '/product/<int:product_id>', methods=['DELETE'])
 api.add_resource(ProductResource, '/product',methods=['POST'])
-api.add_resource(UpdateProductResource, "/product/<int:product_id>", methods=["PUT"])
-api.add_resource(CategoryResource, '/category/<string:ategory>')
-api.add_resource(ProductNameResource, '/product_name/<string:product_name>')
-api.add_resource(DateAddedResource, '/date_added/<int:days>')
-api.add_resource(InventoryResource, '/inventory')
+api.add_resource(UpdateProductResource, "/product/<int:product_id>", methods=['PUT'])
+api.add_resource(CategoryResource, '/category/<string:ategory>',methods=['GET'])
+api.add_resource(ProductNameResource, '/product_name/<string:product_name>',methods=['GET'])
+api.add_resource(DateAddedResource, '/date_added/<int:days>',methods=['GET'])
+api.add_resource(InventoryResource, '/inventory',methods=['GET'])
 
 if __name__ == "__main__":
     app.debug=True
