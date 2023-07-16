@@ -178,6 +178,54 @@ class ProductResource(Resource):
 
         result = add_product(category, name, price, quantity, date_added)
         return result
+class UpdateProductResource(Resource):
+    """
+        Resource endpoint for updating a product.
+    """
+
+    def put(self, product_id):
+        """
+            Update a product in the inventory based on the given product_id.
+            Retrieves updated product information from the request form and performs validation checks.
+            If the product is valid and exists, it is updated in the inventory.
+            If successful, returns the result of updating the product.
+            If any validation checks fail or the product does not exist,
+            appropriate error messages are returned.
+        """
+        category = request.form.get("category")
+        name = request.form.get("name")
+        price = request.form.get("price")
+        quantity = request.form.get("quantity")
+        date_added = request.form.get("date_added")
+
+        if not category or not name or not price or not quantity or not date_added:
+            return {"error": "Missing required fields."}, 400
+
+        if not validate_positive_float(price) or not validate_positive_float(quantity):
+            return {"error": "Invalid price or quantity."}, 400
+
+        if not validate_date(date_added):
+            return {"error": "Invalid date format. Please use yyyy-MM-dd"}, 400
+
+        # Check if the product with the given product_id exists
+        cursor.execute("SELECT * FROM products WHERE id=?", (product_id,))
+        product = cursor.fetchone()
+        if not product:
+            return {"error": "Product not found."}, 404
+
+        # Update the product in the database
+        cursor.execute(
+            """
+            UPDATE products SET category=?, name=?, price=?, quantity=?, date_added=?
+            WHERE id=?
+        """,
+            (category, name, price, quantity, date_added, product_id),
+        )
+        conn.commit()
+
+        return {"message": "Product updated successfully."}
+
+
 
 class CategoryResource(Resource):
     """ 
@@ -244,6 +292,7 @@ class DeleteProductResource(Resource):
 
 api.add_resource(DeleteProductResource, '/product/<int:product_id>', methods=['DELETE'])
 api.add_resource(ProductResource, '/product',methods=['POST'])
+api.add_resource(UpdateProductResource, "/product/<int:product_id>", methods=["PUT"])
 api.add_resource(CategoryResource, '/category/<string:ategory>')
 api.add_resource(ProductNameResource, '/product_name/<string:product_name>')
 api.add_resource(DateAddedResource, '/date_added/<int:days>')
